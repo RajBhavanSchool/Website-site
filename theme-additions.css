@@ -2395,3 +2395,174 @@ dialog {
     border-width: 2px;
   }
 }
+
+/* Beyond the classroom: looping editorial carousel. */
+.life-carousel {
+  width: min(100%, 1500px);
+  margin: clamp(2rem, 4vw, 4rem) auto 0;
+}
+.life-carousel-viewport {
+  position: relative;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: clamp(1.25rem, 2.5vw, 2.25rem);
+  background: var(--wine2);
+  box-shadow: 0 28px 80px rgba(55, 25, 23, 0.16);
+  touch-action: pan-y;
+}
+.life-carousel-track {
+  display: flex;
+  height: 100%;
+  transform: translate3d(-100%, 0, 0);
+  transition: transform 720ms cubic-bezier(0.22, 0.7, 0.16, 1);
+  will-change: transform;
+}
+.life-carousel-track.no-transition { transition: none; }
+.life-slide {
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 100%;
+  min-width: 0;
+  overflow: hidden;
+  color: #fffaf1;
+}
+.life-slide > img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.012);
+  transition: transform 2.4s cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+.life-slide[aria-hidden="false"] > img { transform: scale(1); }
+.life-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(28, 8, 10, 0.72), rgba(28, 8, 10, 0.08) 72%),
+    linear-gradient(0deg, rgba(28, 8, 10, 0.82), transparent 55%);
+}
+.life-slide .life-overlay {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: clamp(1.5rem, 4vw, 4.5rem);
+  justify-content: space-between;
+}
+.life-slide .life-overlay > span {
+  align-self: flex-start;
+  padding: 0.65rem 0.9rem;
+  color: #fffaf1;
+  border: 1px solid rgba(255, 250, 241, 0.42);
+  border-radius: 999px;
+  background: rgba(41, 12, 14, 0.22);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  font-size: 0.67rem;
+  letter-spacing: 0.16em;
+}
+.life-slide .life-copy {
+  max-width: 670px;
+  margin-top: auto;
+  opacity: 1;
+  transform: none;
+}
+.life-slide .life-copy h3 {
+  max-width: 12ch;
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.life-slide .life-copy p {
+  max-width: 47ch;
+  color: rgba(255, 250, 241, 0.9);
+  font-size: clamp(0.92rem, 1.4vw, 1.12rem);
+  line-height: 1.55;
+}
+.life-carousel-controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: 1.15rem 0.25rem 0;
+}
+.life-carousel-status {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  color: var(--wine);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.life-carousel-status i { width: 2.6rem; height: 1px; background: rgba(139, 23, 29, 0.38); }
+.life-carousel-dots { display: flex; justify-content: center; gap: 0.48rem; }
+.life-carousel-dots button {
+  width: 0.52rem;
+  height: 0.52rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(139, 23, 29, 0.22);
+  box-shadow: none;
+  transition: width 260ms ease, background 260ms ease;
+}
+.life-carousel-dots button[aria-current="true"] { width: 2rem; background: var(--wine); }
+.life-carousel-arrows { display: flex; gap: 0.55rem; }
+.life-carousel-arrows button {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  place-items: center;
+  color: var(--wine);
+  border: 1px solid rgba(139, 23, 29, 0.26);
+  border-radius: 50%;
+  background: rgba(255, 250, 241, 0.58);
+  box-shadow: 0 10px 28px rgba(55, 25, 23, 0.08);
+  font-size: 1.2rem;
+}
+.life-carousel-arrows button:hover { color: #fffaf1; background: var(--wine); transform: translateY(-2px); }
+
+@media (max-width: 700px) {
+  .life-carousel-viewport {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+  .life-slide { background: #3d0b10; }
+  .life-slide > img {
+    inset: 0 0 auto;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    transform: none;
+  }
+  .life-slide::after {
+    background:
+      linear-gradient(180deg, rgba(28, 8, 10, 0.25), transparent 32%),
+      linear-gradient(0deg, #3d0b10 0 42%, rgba(61, 11, 16, 0.92) 52%, transparent 72%);
+  }
+  .life-slide .life-copy h3 { font-size: clamp(2.25rem, 11vw, 3.35rem); }
+  .life-slide .life-copy p { font-size: 0.9rem; }
+  .life-carousel-controls { grid-template-columns: 1fr auto; }
+  .life-carousel-dots { grid-column: 1 / -1; grid-row: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .life-carousel-track,
+  .life-slide > img,
+  .life-carousel-dots button { transition: none; }
+}

@@ -333,6 +333,111 @@ document.addEventListener("visibilitychange", () => {
   else if (!bookReader.hidden) scheduleBookTurn();
 });
 
+// Beyond the classroom carousel: seamless two-second loop with touch support.
+const lifeCarousel = $("#life-carousel");
+const lifeTrack = $("#life-carousel-track");
+const lifeSlides = [...lifeTrack.querySelectorAll("[data-life-slide]")];
+const lifeTotal = lifeSlides.length;
+let lifeIndex = 0;
+let lifePosition = 1;
+let lifeTimer = 0;
+let lifePointerStart = null;
+let lifePaused = false;
+
+const firstLifeClone = lifeSlides[0].cloneNode(true);
+const lastLifeClone = lifeSlides.at(-1).cloneNode(true);
+firstLifeClone.removeAttribute("data-life-slide");
+lastLifeClone.removeAttribute("data-life-slide");
+firstLifeClone.setAttribute("aria-hidden", "true");
+lastLifeClone.setAttribute("aria-hidden", "true");
+lifeTrack.prepend(lastLifeClone);
+lifeTrack.append(firstLifeClone);
+
+const lifeDots = lifeSlides.map((slide, index) => {
+  slide.setAttribute("aria-roledescription", "slide");
+  slide.setAttribute("aria-label", `${index + 1} of ${lifeTotal}`);
+  const dot = document.createElement("button");
+  dot.type = "button";
+  dot.setAttribute("aria-label", `Show ${slide.querySelector("h3").textContent}`);
+  dot.addEventListener("click", () => moveLifeCarousel(index, index + 1));
+  $("#life-carousel-dots").append(dot);
+  return dot;
+});
+
+function paintLifeCarousel(animate = true) {
+  lifeTrack.classList.toggle("no-transition", !animate);
+  lifeTrack.style.transform = `translate3d(${-lifePosition * 100}%, 0, 0)`;
+  lifeSlides.forEach((slide, index) =>
+    slide.setAttribute("aria-hidden", String(index !== lifeIndex)),
+  );
+  lifeDots.forEach((dot, index) =>
+    dot.setAttribute("aria-current", String(index === lifeIndex)),
+  );
+  $("#life-current").textContent = String(lifeIndex + 1).padStart(2, "0");
+}
+
+function moveLifeCarousel(index, position = index + 1) {
+  lifeIndex = (index + lifeTotal) % lifeTotal;
+  lifePosition = position;
+  paintLifeCarousel(true);
+  scheduleLifeCarousel();
+}
+
+function nextLifeSlide() {
+  moveLifeCarousel(lifeIndex + 1, lifePosition + 1);
+}
+
+function previousLifeSlide() {
+  moveLifeCarousel(lifeIndex - 1, lifePosition - 1);
+}
+
+function scheduleLifeCarousel() {
+  clearTimeout(lifeTimer);
+  if (lifePaused || document.hidden || reduceMotion.matches) return;
+  lifeTimer = setTimeout(nextLifeSlide, 2000);
+}
+
+lifeTrack.addEventListener("transitionend", (event) => {
+  if (event.propertyName !== "transform") return;
+  if (lifePosition === 0) lifePosition = lifeTotal;
+  else if (lifePosition === lifeTotal + 1) lifePosition = 1;
+  else return;
+  paintLifeCarousel(false);
+  requestAnimationFrame(() => lifeTrack.classList.remove("no-transition"));
+});
+
+$("#life-prev").addEventListener("click", previousLifeSlide);
+$("#life-next").addEventListener("click", nextLifeSlide);
+lifeCarousel.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft") previousLifeSlide();
+  else if (event.key === "ArrowRight") nextLifeSlide();
+  else return;
+  event.preventDefault();
+});
+lifeCarousel.addEventListener("pointerdown", (event) => {
+  lifePointerStart = { x: event.clientX, y: event.clientY };
+});
+lifeCarousel.addEventListener("pointerup", (event) => {
+  if (!lifePointerStart) return;
+  const deltaX = event.clientX - lifePointerStart.x;
+  const deltaY = event.clientY - lifePointerStart.y;
+  lifePointerStart = null;
+  if (Math.abs(deltaX) < 42 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+  deltaX < 0 ? nextLifeSlide() : previousLifeSlide();
+});
+lifeCarousel.addEventListener("pointercancel", () => { lifePointerStart = null; });
+lifeCarousel.addEventListener("mouseenter", () => { lifePaused = true; clearTimeout(lifeTimer); });
+lifeCarousel.addEventListener("mouseleave", () => { lifePaused = false; scheduleLifeCarousel(); });
+lifeCarousel.addEventListener("focusin", () => { lifePaused = true; clearTimeout(lifeTimer); });
+lifeCarousel.addEventListener("focusout", (event) => {
+  if (lifeCarousel.contains(event.relatedTarget)) return;
+  lifePaused = false;
+  scheduleLifeCarousel();
+});
+document.addEventListener("visibilitychange", scheduleLifeCarousel);
+paintLifeCarousel(false);
+scheduleLifeCarousel();
+
 // Contact and visit checklist.
 const dialog = $("#checklist-dialog");
 $("#checklist-button").addEventListener("click", () => dialog.showModal());
@@ -408,7 +513,7 @@ if ("IntersectionObserver" in window && !reduceMotion.matches) {
   );
   document
     .querySelectorAll(
-      ".section-head,.intro-grid,.story-copy,.life-grid article,.admission-steps article,.contact form",
+      ".section-head,.intro-grid,.story-copy,.life-carousel,.admission-steps article,.contact form",
     )
     .forEach((element) => observer.observe(element));
 }

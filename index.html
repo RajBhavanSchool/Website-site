@@ -18,7 +18,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css?v=20261107-1" />
-    <link rel="stylesheet" href="theme-additions.css?v=20261107-7" />
+    <link rel="stylesheet" href="theme-additions.css?v=20261108-3" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -340,83 +340,47 @@
             enrich the school day.
           </p>
         </div>
-        <div class="life-grid">
-          <article class="life-card" tabindex="0">
-            <img
-              src="assets/life/sports-football-uniform.jpg"
-              alt="Raj Bhawan students playing football together on the school field"
-              width="1024"
-              height="1536"
-              loading="lazy"
-            />
-            <div class="life-overlay">
-              <span>01 / TEAM SPIRIT</span>
-              <div class="life-copy">
-                <h3>Sports</h3>
-                <p>
-                  Move with confidence. Practise, persevere and cheer one
-                  another on.
-                </p>
-              </div>
+        <div class="life-carousel" id="life-carousel" role="region" aria-roledescription="carousel" aria-label="Beyond the classroom activities" tabindex="0">
+          <div class="life-carousel-viewport">
+            <div class="life-carousel-track" id="life-carousel-track">
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/ai-robotics-lab-wide.jpg" alt="Raj Bhawan students programming robots in the AI and robotics lab" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>01 / FUTURE READY</span><div class="life-copy"><h3>AI &amp; Robotics Lab</h3><p>Code, build and test intelligent ideas through practical, collaborative exploration.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/stem-lab-wide.jpg" alt="Raj Bhawan students testing a bridge model in the STEM lab" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>02 / DISCOVER BY DOING</span><div class="life-copy"><h3>STEM Lab</h3><p>Ask questions, build models and turn scientific thinking into hands-on discovery.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/sensory-lab-wide.jpg" alt="Raj Bhawan children exploring textures, colour and balance in the sensory lab" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>03 / LEARN THROUGH THE SENSES</span><div class="life-copy"><h3>Sensory Lab</h3><p>Explore light, texture, sound and movement in a calm space designed for joyful learning.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/sports-football-wide.jpg" alt="Raj Bhawan students playing football together on the school field" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>04 / TEAM SPIRIT</span><div class="life-copy"><h3>Sports</h3><p>Move with confidence. Practise, persevere and cheer one another on.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/arts-crafts-wide.jpg" alt="Raj Bhawan students painting and making a collaborative craft model" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>05 / EXPRESSION</span><div class="life-copy"><h3>Arts &amp; Crafts</h3><p>Explore colour, material and imagination through the pleasure of making.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/dance-wide.jpg" alt="Raj Bhawan students rehearsing a coordinated dance routine" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>06 / MOVEMENT</span><div class="life-copy"><h3>Dance</h3><p>Discover rhythm, coordination and confidence through movement.</p></div></div>
+              </article>
+              <article class="life-slide" data-life-slide>
+                <img src="assets/life/theatre-wide.jpg" alt="Raj Bhawan students rehearsing a theatre scene on stage" width="1800" height="1013" loading="eager" />
+                <div class="life-overlay"><span>07 / STORYTELLING</span><div class="life-copy"><h3>Theatre</h3><p>Step into a character, listen to others and find the courage to take the stage.</p></div></div>
+              </article>
             </div>
-          </article>
-          <article class="life-card" tabindex="0">
-            <img
-              src="assets/life/arts-crafts-uniform.jpg"
-              alt="Raj Bhawan students painting and making a collaborative craft model"
-              width="1024"
-              height="1536"
-              loading="lazy"
-            />
-            <div class="life-overlay">
-              <span>02 / EXPRESSION</span>
-              <div class="life-copy">
-                <h3>Arts & crafts</h3>
-                <p>
-                  Explore colour, material and imagination through the pleasure
-                  of making.
-                </p>
-              </div>
+          </div>
+          <div class="life-carousel-controls">
+            <p class="life-carousel-status"><span id="life-current">01</span><i></i><span>07</span></p>
+            <div class="life-carousel-dots" id="life-carousel-dots" aria-label="Choose an activity"></div>
+            <div class="life-carousel-arrows">
+              <button type="button" id="life-prev" aria-label="Previous activity">←</button>
+              <button type="button" id="life-next" aria-label="Next activity">→</button>
             </div>
-          </article>
-          <article class="life-card" tabindex="0">
-            <img
-              src="assets/life/dance-uniform.jpg"
-              alt="Raj Bhawan students rehearsing a coordinated dance routine"
-              width="1024"
-              height="1536"
-              loading="lazy"
-            />
-            <div class="life-overlay">
-              <span>03 / MOVEMENT</span>
-              <div class="life-copy">
-                <h3>Dance</h3>
-                <p>
-                  Discover rhythm, coordination and confidence through
-                  movement.
-                </p>
-              </div>
-            </div>
-          </article>
-          <article class="life-card" tabindex="0">
-            <img
-              src="assets/life/theatre-uniform.jpg"
-              alt="Raj Bhawan students rehearsing a theatre scene on stage"
-              width="1024"
-              height="1536"
-              loading="lazy"
-            />
-            <div class="life-overlay">
-              <span>04 / STORYTELLING</span>
-              <div class="life-copy">
-                <h3>Theatre</h3>
-                <p>
-                  Step into a character, listen to others and find the courage
-                  to take the stage.
-                </p>
-              </div>
-            </div>
-          </article>
+          </div>
         </div>
       </section>
       <section class="news section" id="news" aria-labelledby="news-title">
@@ -723,6 +687,6 @@
       >
     </dialog>
     <script src="vendor/page-flip.browser.js?v=2.0.7" defer></script>
-    <script src="script.js?v=20261108-1" defer></script>
+    <script src="script.js?v=20261108-2" defer></script>
   </body>
 </html>
