@@ -53,7 +53,7 @@ document.addEventListener("keydown", (event) => {
 const stages = [
   {
     word: "Wonder",
-    image: "assets/academics/primary-learning-badged.jpg",
+    image: "assets/academics/primary-learning-uniform.jpg",
     imageAlt:
       "Primary children learning together through blocks, number cards and books",
     kicker: "Build a joyful foundation",
@@ -68,7 +68,7 @@ const stages = [
   },
   {
     word: "Question",
-    image: "assets/academics/grades-4-5-maths-badged.jpg",
+    image: "assets/academics/grades-4-5-maths-uniform.jpg",
     imageAlt:
       "Grades 4 and 5 children solving mathematics together and asking questions",
     kicker: "Reason, solve and ask why",
@@ -83,7 +83,7 @@ const stages = [
   },
   {
     word: "Explore",
-    image: "assets/academics/grades-6-7-ai-badged.jpg",
+    image: "assets/academics/grades-6-7-ai-uniform.jpg",
     imageAlt:
       "Grades 6 and 7 children using critical thinking while exploring artificial intelligence",
     kicker: "Think critically. Explore responsibly.",
@@ -138,7 +138,7 @@ tabs.forEach((tab, index) => {
   });
 });
 
-// Slow, visible page turns for the single school storybook.
+// Realistic, corner-drag school storybook powered by the vendored StPageFlip.
 const chapters = [
   [
     "01 · Welcome",
@@ -149,7 +149,7 @@ const chapters = [
   [
     "02 · Our school",
     "A place to belong. A space to grow.",
-    "In Tech Man City, Mathura, Raj Bhawan offers a CBSE learning journey from Primary to Grade 7.",
+    "In Mathura, Uttar Pradesh, Raj Bhawan offers a CBSE learning journey from Primary to Grade 7.",
     "Belonging",
   ],
   [
@@ -165,17 +165,45 @@ const chapters = [
     "Begin",
   ],
 ];
-let chapter = 0;
-let turning = false;
-function renderChapter() {
-  const [kicker, title, copy, word] = chapters[chapter];
-  $("#book-kicker").textContent = kicker;
-  $("#book-title").textContent = title;
-  $("#book-copy").textContent = copy;
-  $("#book-film-word").textContent = word;
+let pageFlip = null;
+let bookTurnTimer = 0;
+let autoTurnPaused = false;
+const bookReader = $("#book-reader");
+
+function stopBookTimer() {
+  clearTimeout(bookTurnTimer);
+  bookTurnTimer = 0;
+}
+
+function scheduleBookTurn() {
+  stopBookTimer();
+  if (autoTurnPaused || bookReader.hidden || document.hidden || !pageFlip)
+    return;
+  bookTurnTimer = setTimeout(() => {
+    const current = pageFlip.getCurrentPageIndex();
+    const finalPage = getLastReadablePage();
+    if (current >= finalPage) {
+      pageFlip.turnToPage(0);
+      updateBookUI(0);
+      scheduleBookTurn();
+      return;
+    }
+    pageFlip.flipNext("bottom");
+  }, 5000);
+}
+
+function getLastReadablePage() {
+  if (!pageFlip) return 0;
+  return pageFlip.getOrientation() === "landscape"
+    ? pageFlip.getPageCount() - 2
+    : pageFlip.getPageCount() - 1;
+}
+
+function updateBookUI(pageIndex = 0) {
+  const chapter = Math.min(chapters.length - 1, Math.floor(pageIndex / 2));
   $("#book-count").textContent = `Chapter ${chapter + 1} of ${chapters.length}`;
-  $("#book-prev").disabled = chapter === 0;
-  $("#book-next").disabled = chapter === chapters.length - 1;
+  $("#book-prev").disabled = pageIndex <= 0;
+  $("#book-next").disabled = pageIndex >= getLastReadablePage();
   $(".book-dots").replaceChildren(
     ...chapters.map((_, index) => {
       const dot = document.createElement("i");
@@ -184,42 +212,126 @@ function renderChapter() {
     }),
   );
 }
-function turnPage(delta) {
-  const next = chapter + delta;
-  if (turning || next < 0 || next >= chapters.length) return;
-  if (reduceMotion.matches) {
-    chapter = next;
-    renderChapter();
-    return;
+
+function buildBookPage(index, type) {
+  const [kicker, title, copy, word] = chapters[index];
+  const page = document.createElement("section");
+  page.className = `book-page book-page-${type}`;
+  page.dataset.density = "soft";
+
+  if (type === "text") {
+    const eyebrow = document.createElement("span");
+    eyebrow.className = "book-page-kicker";
+    eyebrow.textContent = kicker;
+    const heading = document.createElement("strong");
+    heading.className = "book-page-title";
+    heading.textContent = title;
+    const paragraph = document.createElement("p");
+    paragraph.className = "book-page-copy";
+    paragraph.textContent = copy;
+    const footer = document.createElement("small");
+    footer.textContent = "RAJ BHAWAN · GOOD BEFORE GREAT";
+    page.append(eyebrow, heading, paragraph, footer);
+    return page;
   }
-  turning = true;
-  const leaf = $(".turning-page");
-  leaf.classList.toggle("back", delta < 0);
-  leaf.classList.add("turn");
-  setTimeout(() => {
-    chapter = next;
-    renderChapter();
-  }, 920);
-  setTimeout(() => {
-    leaf.classList.remove("turn", "back");
-    turning = false;
-  }, 1850);
+
+  const logo = document.createElement("img");
+  logo.className = "book-page-mark";
+  logo.src = "assets/brand/raj-bhawan-logo.png";
+  logo.alt = "";
+  const chapterWord = document.createElement("strong");
+  chapterWord.className = "book-page-word";
+  chapterWord.textContent = word;
+  const rings = document.createElement("i");
+  page.append(logo, chapterWord, rings);
+  return page;
 }
+
+function ensurePageFlip() {
+  if (pageFlip) return;
+  const book = $("#page-flip-book");
+  const pages = chapters.flatMap((_, index) => [
+    buildBookPage(index, "text"),
+    buildBookPage(index, "visual"),
+  ]);
+  book.replaceChildren(...pages);
+
+  pageFlip = new St.PageFlip(book, {
+    width: 360,
+    height: 500,
+    size: "stretch",
+    minWidth: 270,
+    maxWidth: 520,
+    minHeight: 375,
+    maxHeight: 650,
+    autoSize: true,
+    drawShadow: true,
+    maxShadowOpacity: 0.58,
+    flippingTime: reduceMotion.matches ? 0 : 1550,
+    usePortrait: true,
+    startZIndex: 10,
+    showCover: false,
+    mobileScrollSupport: true,
+    swipeDistance: 28,
+    showPageCorners: true,
+    disableFlipByClick: false,
+  });
+  pageFlip.on("flip", (event) => updateBookUI(event.data));
+  pageFlip.on("changeOrientation", () =>
+    updateBookUI(pageFlip.getCurrentPageIndex()),
+  );
+  pageFlip.on("changeState", (event) => {
+    if (event.data === "read") scheduleBookTurn();
+    else stopBookTimer();
+  });
+  pageFlip.loadFromHTML(book.querySelectorAll(".book-page"));
+  updateBookUI(0);
+}
+
 $("#open-book").addEventListener("click", () => {
   $("#open-book").hidden = true;
   $("#open-book").setAttribute("aria-expanded", "true");
   $("#book-reader").hidden = false;
-  renderChapter();
-  $("#book-title").focus();
+  autoTurnPaused = reduceMotion.matches;
+  $("#book-autoplay").setAttribute("aria-pressed", String(autoTurnPaused));
+  $("#book-autoplay").textContent = autoTurnPaused
+    ? "Resume auto-turn"
+    : "Pause auto-turn";
+  requestAnimationFrame(() => {
+    ensurePageFlip();
+    updateBookUI(pageFlip.getCurrentPageIndex());
+    scheduleBookTurn();
+    $("#page-flip-book").focus();
+  });
 });
 $("#close-book").addEventListener("click", () => {
+  stopBookTimer();
   $("#book-reader").hidden = true;
   $("#open-book").hidden = false;
   $("#open-book").setAttribute("aria-expanded", "false");
   $("#open-book").focus();
 });
-$("#book-prev").addEventListener("click", () => turnPage(-1));
-$("#book-next").addEventListener("click", () => turnPage(1));
+$("#book-prev").addEventListener("click", () => {
+  stopBookTimer();
+  pageFlip?.flipPrev("bottom");
+});
+$("#book-next").addEventListener("click", () => {
+  stopBookTimer();
+  pageFlip?.flipNext("bottom");
+});
+$("#book-autoplay").addEventListener("click", (event) => {
+  autoTurnPaused = !autoTurnPaused;
+  event.currentTarget.setAttribute("aria-pressed", String(autoTurnPaused));
+  event.currentTarget.textContent = autoTurnPaused
+    ? "Resume auto-turn"
+    : "Pause auto-turn";
+  autoTurnPaused ? stopBookTimer() : scheduleBookTurn();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopBookTimer();
+  else if (!bookReader.hidden) scheduleBookTurn();
+});
 
 // Contact and visit checklist.
 const dialog = $("#checklist-dialog");
@@ -230,15 +342,37 @@ dialog.addEventListener("click", (event) => {
 });
 $("#contact-form").addEventListener("submit", (event) => {
   event.preventDefault();
-  if (!event.currentTarget.reportValidity()) return;
+  const form = event.currentTarget;
   const name = $("#name").value.trim();
   const email = $("#email").value.trim();
+  const phone = $("#phone").value.trim();
   const grade = $("#grade").value;
   const message = $("#message").value.trim();
-  const body = `Name: ${name}\nReply email: ${email}\nGrade of interest: ${grade}\n\n${message}`;
+
+  const hasContact = Boolean(email || phone);
+  $("#email").setCustomValidity(
+    hasContact ? "" : "Enter an email address or contact number.",
+  );
+  $("#email").toggleAttribute("aria-invalid", !hasContact);
+  $("#phone").toggleAttribute("aria-invalid", !hasContact);
+
+  if (!form.reportValidity()) return;
+
+  const enquiry = { name, email, phone, grade, message };
+  form.dispatchEvent(
+    new CustomEvent("enquiry:ready", { detail: enquiry, bubbles: true }),
+  );
   $("#form-status").textContent =
-    "Your email draft is ready. Review it in your mail app and press Send.";
-  location.href = `mailto:info@rajbhawanschool.com?subject=${encodeURIComponent(`School enquiry — ${grade}`)}&body=${encodeURIComponent(body)}`;
+    "🎉 Congratulations! You have taken the first step towards a bright future.";
+});
+
+[$("#email"), $("#phone")].forEach((field) => {
+  field.addEventListener("input", () => {
+    const hasContact = Boolean($("#email").value.trim() || $("#phone").value.trim());
+    $("#email").setCustomValidity("");
+    $("#email").toggleAttribute("aria-invalid", !hasContact);
+    $("#phone").toggleAttribute("aria-invalid", !hasContact);
+  });
 });
 
 // Reading progress and entrance reveals.
